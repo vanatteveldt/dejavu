@@ -1,5 +1,5 @@
 rm -f dejaviewer/migrations/*.py &&
-    rm db.sqlite3 &&
+    rm -f db.sqlite3 &&
     env/bin/python manage.py makemigrations dejaviewer &&
     env/bin/python manage.py migrate &&
     env/bin/python manage.py loaddata dejaviewer/initial_data.yaml  &&

@@ -1,36 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
+
     <div class="row">
-        <div class="col-2">
+        {%  for period in periods %}
+        <div class="col-{% if period == 3 or period == 6 %}1{% else %}2{% endif %}">
+            {% for course in periods.period %}
             <div class="row">
                 <div class="col" style="background: red">
-                    P1
+                    {{  course.code }}
                 </div>
             </div>
+            {%  endfor %}
         </div>
-        <div class="col-2">
-            <div class="row">
-                <div class="col">
-                    P2
-                </div>
-            </div>
-        </div>
-        <div class="col-1">
-            <div class="row">
-                <div class="col">
-                    P3
-                </div>
-            </div>
-        </div>
-        <div class="col-2">
-            One of three columns
-        </div>
-        <div class="col-2">
-            One of three columns
-        </div>
-        <div class="col-1">
-            One of three columns
-        </div>
+        {%  endfor %}
     </div>
 {% endblock %}

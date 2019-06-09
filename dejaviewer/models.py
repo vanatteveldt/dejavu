@@ -39,22 +39,46 @@ class Qualification(models.Model):  # eindterm
 class Course(models.Model):
     code = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
-    year = models.ForeignKey(Year, on_delete=models.PROTECT)
+    academic_year = models.ForeignKey(Year, on_delete=models.PROTECT)
     period = models.IntegerField()  # p1 .. p6
     teachers = models.ManyToManyField(Teacher, through='CourseTeacher')
     outcomes = models.ManyToManyField(Qualification, through='LearningOutcome')
     programmes = models.ManyToManyField(Programme)
+    language = models.CharField(max_length=2)
+    canvas_course = models.IntegerField(null=True)
 
-    level = models.IntegerField()
-    curriculum_year = models.IntegerField(null=True)
-
-    description = models.TextField()  # Inhoud vak (studiegids)
-    goal_text = models.TextField()    # Doel vak (studiegids)
-    test_text = models.TextField()    # Toetsvorm (studiegids)
-    literature = models.TextField()
+    level = models.IntegerField(null=True)
+    programme_year = models.IntegerField(null=True)
 
     def __str__(self):
         return f'[{self.code}] {self.name}'
+
+    def set_field(self, field: str, source: str, content: str):
+        f, _created = CourseField.objects.get_or_create(field=field)
+        try:
+            ci = CourseInfo.objects.get(course=self, field=f, source=source)
+            ci.content = content
+            ci.save()
+        except CourseInfo.DoesNotExist:
+            CourseInfo.objects.create(course=self, field=f, source=source, content=content)
+
+
+class CourseField(models.Model):
+    field = models.CharField(max_length=100)
+    def __str__(self):
+        return f'{self.field}'
+
+class CourseInfo(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    field = models.ForeignKey(CourseField, on_delete=models.CASCADE)
+    source = models.CharField(max_length=100)
+    content = models.TextField(null=False, blank=False)
+
+    class Meta:
+        unique_together = ["course", "field", "source"]
+
+    def __str__(self):
+        return f'{self.course.code}.{self.field} ({self.source})'
 
 
 class CourseTeacher(models.Model):

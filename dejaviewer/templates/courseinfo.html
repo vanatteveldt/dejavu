@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<nav aria-label="Steps navigation">
+  <ul class="pagination">
+    <li class="page-item {%  if stepnr == 1 %}disabled{% endif %}">
+      <a class="page-link" href="{% url "course-info" step=stepnr|add:-1  %}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+      {%  for s in steps %}
+    <li class="page-item {% if forloop.counter == stepnr %} active {% endif %}" >
+        <a class="page-link" href="{% url "course-info" step=forloop.counter %}">{{ forloop.counter }}</a>
+    </li>
+      {%  endfor %}
+    <li class="page-item {%  if stepnr == nsteps %}disabled{% endif %}">
+      <a class="page-link" href="{% url "course-info" step=stepnr|add:1  %}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+    {{ form.media }}
+
+<form method="post">
+     {% csrf_token %}
+
+    {{ form.non_field_errors }}
+
+    {% for field in form %}
+         <div class="form-group">
+
+         {{ field.label_tag }} <br/>
+             {{ field }}
+            <small id="emailHelp" class="form-text text-muted">{{ field.help_text|safe }}</small>
+         </div>
+{% endfor %}
+
+  <button type="submit" class="btn btn-primary">Save & Continue</button>
+
+</form>
+
+<nav aria-label="Steps navigation">
+  <ul class="pagination">
+    <li class="page-item {%  if stepnr == 1 %}disabled{% endif %}">
+      <a class="page-link" href="{% url "course-info" step=stepnr|add:-1  %}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+      {%  for s in steps %}
+    <li class="page-item {% if forloop.counter == stepnr %} active {% endif %}" >
+        <a class="page-link" href="{% url "course-info" step=forloop.counter %}">{{ forloop.counter }}</a>
+    </li>
+      {%  endfor %}
+    <li class="page-item {%  if stepnr == nsteps %}disabled{% endif %}">
+      <a class="page-link" href="{% url "course-info" step=stepnr|add:1  %}" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+{% endblock %}

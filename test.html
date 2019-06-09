@@ -10,35 +10,47 @@
 
     <title>Hello, world!</title>
   <style>
-      .vak {min-height: 50px}
-      .jaar {height: 200px; border: solid blue 2px}
+      .vak {border-style: solid; border-color: white;}
+      .vak2 {height: 80px; border-width: 2px 2px 2px 0px}
+      .blokvak {height: 200px;  border-width: 2px 0px 2px 0px;}
+      .lintvak {height: 40px; border-width: 0px}
+      .jaar {height: 200px}
   </style>
   </head>
 
   <body>
   <div class="container">
   <div class="row jaar">
-        <div class="col-2" style="height: 100%; border: solid red 1px">
+        <div class="col-2" style="height: 100%;">
             <div class="row">
-                <div class="vak col-12" style="background: blue">
+                <div class="vak vak2 col-12" style="background: blue">
                     P1a
                 </div>
-                <div class="vak col-12" style="background: red">
+                <div class="vak lintvak col-12" style="background: purple">
+                    P1c
+                </div>
+                <div class="vak vak2 col-12" style="background: red">
                     P1b
                 </div>
             </div>
         </div>
         <div class="col-2">
             <div class="row">
-                <div class="col">
-                    P2
+                 <div class="vak vak2 col-12" style="background: blue">
+                    P2a
+                </div>
+                <div class="vak lintvak col-12" style="background: purple">
+                    Lint
+                </div>
+                <div class="vak vak2 col-12" style="background: red">
+                    P2b
                 </div>
             </div>
         </div>
         <div class="col-1">
             <div class="row">
-                <div class="col">
-                    P3
+                <div class="vak blokvak col" style="background: purple">
+                    blok
                 </div>
             </div>
         </div>

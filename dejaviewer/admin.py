@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 
-from dejaviewer.models import CourseTeacher
+from dejaviewer.models import CourseTeacher, CourseInfo
 from .models import Year, Course, Qualification, Programme, TestType, Teacher
 
 # Register your models here.
@@ -12,6 +12,9 @@ admin.site.register(Qualification)
 admin.site.register(Programme)
 admin.site.register(TestType)
 
+class CourseInfoInline(admin.TabularInline):
+    model = CourseInfo
+    extra = 2
 
 class CourseTeacherInline(admin.TabularInline):
     model = CourseTeacher
@@ -19,7 +22,7 @@ class CourseTeacherInline(admin.TabularInline):
 
 
 class CourseAdmin(admin.ModelAdmin):
-    inlines = (CourseTeacherInline,)
+    inlines = (CourseInfoInline, CourseTeacherInline,)
 admin.site.register(Course, CourseAdmin)
 
 admin.site.unregister(User)
