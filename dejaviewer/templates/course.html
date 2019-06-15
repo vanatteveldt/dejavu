@@ -26,7 +26,10 @@
         </div>
         <h1>{{  course.name}}</h1>
         Teachers: {% for t in teachers %}{{ t.teacher.user.username }} {% if t.coordinator %}(C){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}
+        <p>
+        {%  if course.canvas_course %}
 
+            <a class="btn btn-info" href="https://canvas.vu.nl/courses/{{ course.canvas_course }}">View on Canvas</a>{% endif %}
 
     </div>
 {% endblock %}
