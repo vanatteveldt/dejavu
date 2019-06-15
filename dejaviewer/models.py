@@ -48,7 +48,6 @@ class Course(models.Model):
     canvas_course = models.IntegerField(null=True)
 
     level = models.IntegerField(null=True)
-    programme_year = models.IntegerField(null=True)
 
     def __str__(self):
         return f'[{self.code}] {self.name}'
@@ -65,8 +64,10 @@ class Course(models.Model):
 
 class CourseField(models.Model):
     field = models.CharField(max_length=100)
+
     def __str__(self):
         return f'{self.field}'
+
 
 class CourseInfo(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)

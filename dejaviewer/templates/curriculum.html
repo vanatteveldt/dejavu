@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="jumbotron" style="margin-top: 2em">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{ programme.name }}
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                {%  for p in programmes %}
+                <a class="dropdown-item" href="{% url 'curriculum' programme=p.code %}">{{ p.name }}</a>
+                {%  endfor %}
+            </div>
+        </div>
+
+        <ul>
+            {%  for c in courses %}
+                <li /> [{{  c.period }}] <a href="{% url 'course' programme=programme.code course=c.code %}">{{ c }}</a>
+            {% endfor %}
+</ul>
+
+    </div>
+{% endblock %}
+

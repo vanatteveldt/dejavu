@@ -1,19 +1,33 @@
 - model: dejaviewer.Year
   pk: 1
   fields:
+    start_year: 2018
+- model: dejaviewer.Year
+  pk: 2
+  fields:
     start_year: 2019
 - model: dejaviewer.Programme
   pk: 1
   fields:
-    code: SB_CW
-    name: "Bachelor CW"
+    code: 'S_B_1 CW'
+    name: 'Bachelor Communicatiewetenschap jaar 1'
 - model: dejaviewer.Programme
   pk: 2
   fields:
-    code: SM_CW
-    name: "Master CW"
+    code: 'S_B_2 CW'
+    name: 'Bachelor Communicatiewetenschap jaar 2'
 - model: dejaviewer.Programme
   pk: 3
   fields:
-    code: SP_CW
-    name: "Premaster CW"
+    code: 'S_B_3 CW'
+    name: 'Bachelor Communicatiewetenschap jaar 3'
+- model: dejaviewer.Programme
+  pk: 4
+  fields:
+    code: 'S_P_CW'
+    name: 'Premaster Communicatiewetenschap'
+- model: dejaviewer.Programme
+  pk: 5
+  fields:
+    code: 'S_M_CW'
+    name: 'Master Communicatiewetenschap'

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="jumbotron" style="margin-top: 2em">
+
+        <div class="btn-group">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ programme.name }}
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    {%  for p in programmes %}
+                        <a class="dropdown-item" href="{% url 'curriculum' programme=p.code %}">{{ p.name }}</a>
+                    {%  endfor %}
+                </div>
+            </div> &nbsp;/&nbsp;
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ course.name }}
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    {%  for c in courses %}
+                        <a class="dropdown-item" href="{% url 'course' programme=programme.code course=c.code %}">{{ c.name }}</a>                {%  endfor %}
+                </div>
+            </div>
+        </div>
+        <h1>{{  course.name}}</h1>
+        Teachers: {% for t in teachers %}{{ t.teacher.user.username }} {% if t.coordinator %}(C){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}
+
+
+    </div>
+{% endblock %}
+

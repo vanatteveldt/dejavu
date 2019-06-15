@@ -39,10 +39,8 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'dejavu.settings'
 django.setup()
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s %(name)-12s %(levelname)-5s] %(message)s')
 
-codes = {x['code'] for x in csv.DictReader(open("data/cw_vakken.csv"))}
-
 from django.contrib.auth.models import User
-from dejaviewer.models import Course, Year, Programme, Teacher, CourseTeacher, CourseField, CourseInfo
+from dejaviewer.models import Course, Year, Programme, Teacher, CourseTeacher, CourseField, CourseInfo, Programme
 
 
 def path(fn):
@@ -52,11 +50,15 @@ def path(fn):
     return p
 
 
-parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('uas_file', type=path)
-args = parser.parse_args()
-
-year = Year.objects.get(start_year=2019)
+def get_programme(pcode: str) -> Programme:
+    if pcode.startswith('S_M_CW'):
+        return Programme.objects.get(code="S_M_CW")
+    if pcode.startswith('S_B keuze '):  # SS4S
+        return Programme.objects.get(code="S_B_2 CW")
+    try:
+        return Programme.objects.get(code=pcode)
+    except Programme.DoesNotExist:
+        return
 
 
 def rematch(pattern: str, string:str, *args, **kargs) -> Match:
@@ -97,68 +99,70 @@ def get_teacher(c: Course, x: str) -> CourseTeacher:
     return ct
 
 
-with args.uas_file.open() as f:
-    for i, d in enumerate(csv.DictReader(f)):
-        #print(json.dumps(d, indent=2))
-        code = d['Code']
-        if code not in codes:
-            continue
-        codes.remove(code)
-        print(i, code, d['Vaknaam (EN)'])
-        try:
-            c = Course.objects.get(code=code)
-        except Course.DoesNotExist:
-            c = Course()
-            c.code = code
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('uas_file', type=path, nargs='+')
+args = parser.parse_args()
 
-        # skip courses with no period
-        period = d['Aangeboden periodes'].replace("Periode ", "")
-        if not period.strip():
-            continue
-        if period == "Ac. Jaar (september)":
-            c.period = 123456
-        else:
-            c.period = int(re.sub(r"\+", "", period))
+year = Year.objects.get(start_year=2018)
 
-        c.academic_year = year
-        c.name = d['Vaknaam (EN)']
-        if d['Onderwijstaal']:
-            m = research(r"\((\w+)\)", d['Onderwijstaal'])
-            c.language = m.group(1)
-        if 'Bachelor jaar ' in d['Type']:
-            c.programme_year = int(d['Type'].replace('Bachelor jaar ', ''))
+for fn in args.uas_file:
+    with fn.open() as f:
+        for i, d in enumerate(csv.DictReader(f)):
+            #print(json.dumps(d, indent=2))
+            code = d['Code']
+            programme = get_programme(d['Code_MG'])
+            if not programme:
+                continue
 
-        if d['Niveau']:
-            c.level = int(d['Niveau'])
-
-        # FIXME: get proper course ids (from somewhere)
-        if c.code == "S_D1":
-            c.canvas_course = 38555
-
-        c.save()  # id needed to make many-to-many relations
-
-        for field in fields:
-            content = d[field.column]
-            if content:
-                c.set_field(field.field, field.source, content)
-
-        for code in set(d['Bijbehorende opleidingscodes'].split(", ")):
             try:
-                p = Programme.objects.get(code=code)
-                c.programmes.add(p)
-            except Programme.DoesNotExist:
+                c = Course.objects.get(code=code, academic_year=year)
+            except Course.DoesNotExist:
                 pass
+            else:
+                # course already exists, so only register as part of this programme
+                c.programmes.add(programme)
+                continue
 
-        for name in d['Vakcoordinator'].split(", "):
-            if name:
-                ct = get_teacher(c, name)
-                ct.coordinator = True
-                ct.save()
-        for name in d['Examinator'].split(", "):
-            if name:
-                ct = get_teacher(c, name)
-                ct.examinator = True
-                ct.save()
-        for name in d['Docent(en)'].split(", "):
-            if name and not name == "houtveen":
-                get_teacher(c, name)
+            # Create the course
+            print("Creating course ", code, year)
+            c = Course(code=code, academic_year=year)
+
+            # skip courses with no period
+            period = d['Aangeboden periodes'].replace("Periode ", "")
+            if not period.strip():
+                continue
+            if period == "Ac. Jaar (september)":
+                c.period = 123456
+            else:
+                c.period = int(re.sub(r"\+", "", period))
+
+            c.name = d['Vaknaam (EN)']
+            if d['Onderwijstaal']:
+                m = research(r"\((\w+)\)", d['Onderwijstaal'])
+                c.language = m.group(1)
+
+            if d['Niveau']:
+                c.level = int(d['Niveau'])
+
+            c.save()  # id needed to make many-to-many relations
+            c.programmes.add(programme)
+
+            for field in fields:
+                content = d[field.column]
+                if content:
+                    c.set_field(field.field, field.source, content)
+
+
+            for name in d['Vakcoordinator'].split(", "):
+                if name:
+                    ct = get_teacher(c, name)
+                    ct.coordinator = True
+                    ct.save()
+            for name in d['Examinator'].split(", "):
+                if name:
+                    ct = get_teacher(c, name)
+                    ct.examinator = True
+                    ct.save()
+            for name in d['Docent(en)'].split(", "):
+                if name and not name == "houtveen":
+                    get_teacher(c, name)

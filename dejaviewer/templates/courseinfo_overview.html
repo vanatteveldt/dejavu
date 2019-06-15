@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    {%  for f, i in fields.items %}
+        <h2>{{  f }}</h2>
+        {%  for src, text in i.items %}
+            <h3>{{ src }}</h3>
+            {{ text|safe }}
+        {% endfor %}
+    {%  endfor %}
+{% endblock %}
+

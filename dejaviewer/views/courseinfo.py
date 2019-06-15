@@ -2,20 +2,9 @@ from typing import Iterable
 
 from ckeditor.widgets import CKEditorWidget
 from django import forms
-from django.views.generic import FormView
+from django.views.generic import FormView, TemplateView
 
 from dejaviewer.models import Course
-
-class Field:
-    def __init__(self, field: str, label: str):
-        self.field = field
-        self.label = label
-
-class Step:
-    def __init__(self, name: str, fields: Iterable[Field]):
-        self.name = name
-        self.fields = fields
-
 
 # Beschrijving (1.3)
 # Leerdoelen (2.2)
@@ -32,11 +21,14 @@ class Step:
 
 # Herentamenanalyse + reactie
 
-steps = [
-    Step("Course Description", [Field("description", "Course Description"),
-                                Field("goal_text", "Course goals")]),
-    Step("Syllabus and course manual", [Field("syllabus", "Syllabus")]),
-]
+steps = {
+    "Description": ["description", "goal"],
+    "Course Manual": [],
+    "Testing": ["test"],
+    "Evaluation": [],
+    "Resit": [],
+}
+
 
 
 class CourseInfoView(FormView):
@@ -72,3 +64,21 @@ class CourseInfoView(FormView):
             setattr(self.course, f.field, form.cleaned_data[f.field])
         self.course.save()
         return self.render_to_response(self.get_context_data(form=form))
+
+
+class CourseInfoOverView(TemplateView):
+    template_name = 'courseinfo_overview.html'
+
+    def get_context_data(self, **kwargs):
+        c = super().get_context_data(**kwargs)
+        course = Course.objects.get(code="S_D1")
+        fields = {}
+        for ci in course.courseinfo_set.all():
+            if ci.field not in fields:
+                fields[ci.field] = {}
+            fields[ci.field][ci.source] = ci.content
+        c.update(dict(course=course, fields=fields))
+        return c
+
+
+
