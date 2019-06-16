@@ -1,49 +1,56 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="jumbotron" style="margin-top: 2em">
+    <div class="jumbotron" style="margin-top: 2em">
 
-<h1>Login to DejaVU</h1>
+        <h1>Login to DejaVU</h1>
 
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% if error %}
+            <div class="alert alert-danger" role="alert">{{ error }}</div>
+        {% endif %}
 
-{% if next %}
-    {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-    {% else %}
-    <p>Please login to see this page.</p>
-    {% endif %}
-{% endif %}
+        <p class="lead text-divider"><span>Please enter your VUnetID</span></p>
 
-<form method="post" action="{% url 'login' %}">
-{% csrf_token %}
-
-    <div class="form-group row">
-    <label for="id_username" class="col-form-label col-sm-2">VUnetID</label>
-            <div class="col-sm-10">
-    <input type="text" name='username' class="form-control"  id="id_username" placeholder="VUnetID">
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="form-group row">
+                <label for="id_username" class="col-form-label col-sm-2">VUnetID</label>
+                <div class="col-sm-10">
+                    <input type="text" name='username' class="form-control  {%if form.errors.username %}is-invalid{%endif%}"  id="id_username" placeholder="VUnetID">
+                        {% if form.errors.username %}<div class="invalid-feedback">{{ form.errors.username }}</div>{%  endif %}
+                </div>
             </div>
-    </div>
+            <p class="lead text-divider"><span>And enter your password to login directly</span></p>
 
-    <div class="form-group row">
-    <label for="id_password" class="col-form-label col-sm-2">Password</label>
-            <div class="col-sm-10">
-    <input type="password" name='password' class="form-control"  id="id_password" placeholder="VUnetID">
+            <div class="form-group row">
+                <label for="id_password" class="col-form-label col-sm-2">Password</label>
+                <div class="col-sm-9">
+                    <input type="password" name='password' class="form-control"  id="id_password" placeholder="VUnetID">
+                     {% if form.errors.password %}<div class="invalid-feedback">{{ form.errors.password }}</div>{%  endif %}
+                </div>
+                <input name="action-login" class="btn btn-primary col-sm-1" type="submit" value="login">
             </div>
+
+            <input type="hidden" name="next" value="{{ next }}">
+
+            <p class="lead text-divider"><span>Or use the buttons below to request a login link or password reset</span></p>
+
+            <div class="row">
+                <div class="col-md-2 offset-md-2">
+                    <input name="action-link" type="submit" class="btn btn-primary" style="width:100%" value="Send login link">
+                </div>
+                <div class="col-md-2">
+                    <input name="action-reset"  type="submit"  class="btn btn-warning"  style="width:100%"  value="Reset password">
+                </div>
+
+            </div>
+        </form>
+        {# Assumes you setup the password_reset view in your URLconf #}
+
+
     </div>
-
-<input class="btn btn-primary" type="submit" value="login">
-<input type="hidden" name="next" value="{{ next }}">
-
-</form>
-<p class="lead" style="margin-top:1em">If you forgot your password or prefer to log in via a link, use the button below:</p>
-{# Assumes you setup the password_reset view in your URLconf #}
-    <a class="btn btn-warning" href="{% url 'password_reset' %}">Reset password or send login link</a></p>
-
-
-</div>
 
 {%  endblock %}

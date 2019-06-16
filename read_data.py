@@ -91,7 +91,6 @@ def get_teacher(c: Course, x: str) -> CourseTeacher:
                                          last_name=m.group('name'),
                                          email=f'{vunetid}@vu.nl')
 
-            u.is_active = False
             u.save()
         phd = 'dr.' in m.group('titles')
         t = Teacher.objects.create(user=u, has_phd=phd)
@@ -151,7 +150,6 @@ for fn in args.uas_file:
                 content = d[field.column]
                 if content:
                     c.set_field(field.field, field.source, content)
-
 
             for name in d['Vakcoordinator'].split(", "):
                 if name:

@@ -1,0 +1,17 @@
+Dear {% if user.last_name %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %},
+
+Here is the {% if action == 'LINK' %}one-time login{%  else %}password reset{% endif %} link for DejaVU you requested:
+
+
+{% if action == 'LINK' %}
+{{ protocol }}://{{ domain }}{% url 'login-token' uidb64=uid token=token %}?next={{ next|urlencode }}
+{%  else %}
+{{ protocol }}://{{ domain }}{% url 'password_reset_confirm' uidb64=uid token=token %}
+{%  endif %}
+
+
+Thank you for using DejaVU!
+
+-- Wouter
+
+Note: if you didn't request this link, please ignore this email

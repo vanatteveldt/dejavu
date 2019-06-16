@@ -19,6 +19,12 @@
             padding: 3rem 1.5rem;
             text-align: center;
         }
+
+
+        .text-divider{margin: 2em 0; line-height: 0; text-align: center;}
+.text-divider span{padding: 1em;}
+.jumbotron .text-divider span {background-color: rgb(233, 236, 239);}
+.text-divider:before{ content: " "; display: block; border-top: 2px solid #e3e3e3; border-bottom: 2px solid #f7f7f7;}
     </style>
 <script src="https://kit.fontawesome.com/de4508666e.js"></script>
 
@@ -28,16 +34,19 @@
 
 <!-- Top level menu (navbar) -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <a class="navbar-brand" href="#">DejaVU</a>
+  <a class="navbar-brand" href="{%  url 'index' %}">DejaVU</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
     <ul class="nav navbar-nav  ml-auto">
+        {% if user.is_superuser %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'admin:index' %}"><i class="fas fa-cogs"></i> Admin</a></li>
+        {% endif %}
         {% if user.is_authenticated %}
       <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-user-graduate"></i> {{ user.username }}</a></li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}?next={{ request.path }}"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
         {%  else %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Log in</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'login' %}?next={{ request.path }}"><i class="fas fa-sign-in-alt"></i> Log in</a></li>
 
         {% endif %}
     </ul>

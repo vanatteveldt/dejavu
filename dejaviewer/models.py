@@ -7,7 +7,7 @@ class Teacher(models.Model):
     has_phd = models.BooleanField(null=True)
     has_bko = models.BooleanField(null=True)
     has_enc1 = models.BooleanField(null=True)
-    notes = models.TextField()
+    notes = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f'[{self.user.username}] {self.user.first_name} {self.user.last_name}'

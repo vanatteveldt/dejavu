@@ -1,0 +1,1 @@
+{% if action == 'LINK' %}One-time login{% else %}Password reset{% endif %} link for DejaVU
