@@ -15,7 +15,7 @@
 
         <ul>
             {%  for c in courses %}
-                <li /> [{{  c.period }}] <a href="{% url 'course' programme=programme.code course=c.code %}">{{ c }}</a>
+                <li /> [{{  c.period }}] <a href="{% url 'course' programme=programme.code course=c.id %}">{{ c }}</a>
             {% endfor %}
 </ul>
 

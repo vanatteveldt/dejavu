@@ -66,7 +66,7 @@ class CourseInfoView(FormView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class CourseInfoOverView(TemplateView):
+class CourseInfoCompleteView(TemplateView):
     template_name = 'courseinfo_overview.html'
 
     def get_context_data(self, **kwargs):
@@ -80,5 +80,14 @@ class CourseInfoOverView(TemplateView):
         c.update(dict(course=course, fields=fields))
         return c
 
+
+class CourseInfoIndexView(TemplateView):
+    template_name = 'courseinfo_index.html'
+
+    def get_context_data(self, **kwargs):
+        c = super().get_context_data(**kwargs)
+        c['course'] = Course.objects.get(id=kwargs['course'])
+        c['steps'] = steps
+        return c
 
 

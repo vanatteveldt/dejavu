@@ -20,17 +20,27 @@
             text-align: center;
         }
     </style>
+<script src="https://kit.fontawesome.com/de4508666e.js"></script>
 
 </head>
 
 <body>
 
 <!-- Top level menu (navbar) -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <a class="navbar-brand" href="#">DejaVU</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
+    <ul class="nav navbar-nav  ml-auto">
+        {% if user.is_authenticated %}
+      <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-user-graduate"></i> {{ user.username }}</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Log out</a></li>
+        {%  else %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="fas fa-sign-in-alt"></i> Log in</a></li>
+
+        {% endif %}
+    </ul>
 </nav>
 
 <!-- Main content -->

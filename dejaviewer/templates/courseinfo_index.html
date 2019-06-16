@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="jumbotron" style="margin-top: 2em">
+
+<h1>Dossier for {{ course.code }}: {{ course.name }}</h1>
+
+    <p class="lead">Click on any of the steps below to edit that step.</p>
+<p>
+    Note: Complete steps are marked <span class="badge badge-success">green</span>; incomplete steps are marked yellow; unstarted steps are marked <span class="badge badge-danger">red</span>.
+</p>
+
+<div class="list-group">
+{% for step in steps %}
+  <a href="{% url 'course-info' course=course.id step=forloop.counter %}" class="list-group-item list-group-item-action list-group-item-danger">
+      {{ step }}
+  </a>
+
+{% endfor %}
+</div>
+    <p class="lead">You can view or print the full dossier with the link below:</p>
+<a class="btn btn-info" href="{% url 'course-info-complete' course=course.id %}">Full Dossier</a>
+</div>
+
+{%  endblock %}

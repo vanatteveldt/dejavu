@@ -20,11 +20,14 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     {%  for c in courses %}
-                        <a class="dropdown-item" href="{% url 'course' programme=programme.code course=c.code %}">{{ c.name }}</a>                {%  endfor %}
+                        <a class="dropdown-item" href="{% url 'course' programme=programme.code course=c.id %}">{{ c.name }}</a>                {%  endfor %}
                 </div>
             </div>
         </div>
         <h1>{{  course.name}}</h1>
+
+        {% if can_edit %}<p>Actions: <a class="btn btn-primary" href="{% url "course-info-index" course=course.id %}">Edit Dossier</a> </p>{% endif %}
+
         Teachers: {% for t in teachers %}{{ t.teacher.user.username }} {% if t.coordinator %}(C){% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}
         <p>
         {%  if course.canvas_course %}

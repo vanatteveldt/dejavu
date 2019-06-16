@@ -1,18 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-    <div class="row">
-        {%  for period in periods %}
-        <div class="col-{% if period == 3 or period == 6 %}1{% else %}2{% endif %}">
-            {% for course in periods.period %}
-            <div class="row">
-                <div class="col" style="background: red">
-                    {{  course.code }}
-                </div>
+<div class="jumbotron" style="margin-top: 2em">
+        Jump to curriculum:
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Select programme
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                {%  for p in programmes %}
+                <a class="dropdown-item" href="{% url 'curriculum' programme=p.code %}">{{ p.name }}</a>
+                {%  endfor %}
             </div>
-            {%  endfor %}
         </div>
-        {%  endfor %}
+
+</ul>
+
     </div>
+
 {% endblock %}
