@@ -11,9 +11,10 @@
 </p>
 
 <div class="list-group">
-{% for step in steps %}
-  <a href="{% url 'course-info' course=course.id step=forloop.counter %}" class="list-group-item list-group-item-action list-group-item-danger">
-      {{ step }}
+{% for part, complete in parts.items %}
+  <a href="{% url part.view_name course=course.id %}"
+     class="list-group-item list-group-item-action list-group-item-{% if complete %}success{% else %}danger{% endif %}">
+      {{ part.name }}
   </a>
 
 {% endfor %}

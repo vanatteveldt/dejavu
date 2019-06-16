@@ -12,9 +12,9 @@ from dejaviewer.views.index import IndexView
 urlpatterns = [
     path('', IndexView.as_view(), name='index'),
 
-    #path('course/<int:course>/dossier/full', CourseInfoCompleteView.as_view(), name='course-info-complete'),
-    path('course/<int:course>/dossier/description', DossierDescriptionView.as_view(), name='dossier-description'),
-    #path('course/<int:course>/dossier', CourseInfoIndexView.as_view(), name='course-info-index'),
+    path('course/<int:course>/dossier/full', CourseInfoCompleteView.as_view(), name='course-info-complete'),
+    path('course/<int:course>/dossier/description', DossierDescriptionView.as_view(), name=DossierDescriptionView.view_name),
+    path('course/<int:course>/dossier', CourseInfoIndexView.as_view(), name='course-info-index'),
 
     path('curriculum', CurriculumView.as_view(), name='curriculum'),
     path('curriculum/<str:programme>', CurriculumView.as_view(), name='curriculum'),

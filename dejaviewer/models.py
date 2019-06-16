@@ -53,6 +53,7 @@ class Course(models.Model):
         return f'[{self.code}] {self.name}'
 
     def set_field(self, field: str, source: str, content: str):
+        print(f'{self.code}.{field} [{source}] -> {content}')
         f, _created = CourseField.objects.get_or_create(field=field)
         try:
             ci = CourseInfo.objects.get(course=self, field=f, source=source)

@@ -3,6 +3,7 @@ from typing import Iterable
 from ckeditor.widgets import CKEditorWidget
 from django import forms
 from django.forms import CharField
+from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 
 from dejaviewer.models import Course, CourseField, CourseInfo
@@ -22,14 +23,6 @@ from dejaviewer.models import Course, CourseField, CourseInfo
 
 # Herentamenanalyse + reactie
 
-steps = {
-    "Description": ["description", "goal"],
-    "Course Manual": [],
-    "Testing": ["test"],
-    "Evaluation": [],
-    "Resit": [],
-}
-
 
 
 class DossierDescriptionForm(forms.Form):
@@ -38,6 +31,8 @@ class DossierDescriptionForm(forms.Form):
 class DossierDescriptionView(FormView):
     template_name = 'dossier_description.html'
     form_class = DossierDescriptionForm
+    name = "Course Description"
+    view_name = "dossier-description"
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
@@ -60,6 +55,18 @@ class DossierDescriptionView(FormView):
         self.course.set_field('description', 'dossier', form.cleaned_data['description'])
         return super().form_valid(form)
 
+    def get_success_url(self):
+        return reverse(self.view_name, kwargs=dict(course=self.course.id))
+
+    @classmethod
+    def is_complete(cls, course: Course) -> bool:
+        field = CourseField.objects.get(field='description')
+        try:
+            ci = CourseInfo.objects.get(field=field, course=course, source='dossier')
+            return bool(ci.content.strip())
+        except CourseInfo.DoesNotExist:
+            return False
+
 
 class CourseInfoCompleteView(TemplateView):
     template_name = 'dossier_full.html'
@@ -81,8 +88,10 @@ class CourseInfoIndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         c = super().get_context_data(**kwargs)
-        c['course'] = Course.objects.get(id=kwargs['course'])
-        c['steps'] = steps
+        course = Course.objects.get(id=kwargs['course'])
+        parts = {p: p.is_complete(course) for p in dossier_parts}
+        c.update(**locals())
         return c
 
 
+dossier_parts = [DossierDescriptionView]
