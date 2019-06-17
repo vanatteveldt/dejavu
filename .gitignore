@@ -107,3 +107,5 @@ data/
 static/
 *~
 .idea
+
+site_settings.py
