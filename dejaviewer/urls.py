@@ -3,7 +3,8 @@ from django.views.generic import RedirectView
 
 from dejaviewer.views.auth import VULoginView, TokenLoginView
 from dejaviewer.views.course import CourseView
-from dejaviewer.views.dossier import CourseInfoCompleteView, CourseInfoIndexView, DossierDescriptionView
+from dejaviewer.views.dossier import CourseInfoCompleteView, CourseInfoIndexView, DossierDescriptionView, \
+    DossierLearningGoalsView, DossierEvaluationView, DossierTestView
 from dejaviewer.views.curriculum import CurriculumView
 from django.contrib.auth import views as auth_views
 
@@ -14,6 +15,9 @@ urlpatterns = [
 
     path('course/<int:course>/dossier/full', CourseInfoCompleteView.as_view(), name='course-info-complete'),
     path('course/<int:course>/dossier/description', DossierDescriptionView.as_view(), name=DossierDescriptionView.view_name),
+    path('course/<int:course>/dossier/goals', DossierLearningGoalsView.as_view(), name=DossierLearningGoalsView.view_name),
+    path('course/<int:course>/dossier/test', DossierTestView.as_view(), name=DossierTestView.view_name),
+    path('course/<int:course>/dossier/evaluation', DossierEvaluationView.as_view(), name=DossierEvaluationView.view_name),
     path('course/<int:course>/dossier', CourseInfoIndexView.as_view(), name='course-info-index'),
 
     path('curriculum', CurriculumView.as_view(), name='curriculum'),

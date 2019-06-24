@@ -2,11 +2,12 @@ from typing import Iterable
 
 from ckeditor.widgets import CKEditorWidget
 from django import forms
-from django.forms import CharField
+from django.forms import CharField, modelformset_factory
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 
-from dejaviewer.models import Course, CourseField, CourseInfo
+from dejaviewer.models import Course, CourseField, CourseInfo, LearningOutcome, Test
+
 
 # Beschrijving (1.3)
 # Leerdoelen (2.2)
@@ -24,9 +25,9 @@ from dejaviewer.models import Course, CourseField, CourseInfo
 # Herentamenanalyse + reactie
 
 
-
 class DossierDescriptionForm(forms.Form):
     description = CharField(label='Coruse Description', widget=CKEditorWidget)
+
 
 class DossierDescriptionView(FormView):
     template_name = 'dossier_description.html'
@@ -66,6 +67,40 @@ class DossierDescriptionView(FormView):
             return bool(ci.content.strip())
         except CourseInfo.DoesNotExist:
             return False
+
+
+class DossierLearningGoalsView(FormView):
+    template_name = 'dossier_description.html'
+    view_name = "dossier-goals"
+    name = "Learning Goals"
+    form_class = modelformset_factory(LearningOutcome, exclude=['course'])
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.course = Course.objects.get(pk=kwargs['course'])
+        self.field = CourseField.objects.get(field='description')
+        self.sources = {ci.source: ci.content for ci in CourseInfo.objects.filter(course=self.course, field=self.field)}
+        self.value = self.sources.pop('dossier', '')
+
+
+class DossierTestView(FormView):
+    template_name = 'dossier_description.html'
+    view_name = "dossier-test"
+    name = "Tests and Assignments"
+    form_class = modelformset_factory(Test, exclude=['course'])
+
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.course = Course.objects.get(pk=kwargs['course'])
+        self.field = CourseField.objects.get(field='test')
+        self.sources = {ci.source: ci.content for ci in CourseInfo.objects.filter(course=self.course, field=self.field)}
+
+
+class DossierEvaluationView(FormView):
+    view_name = "dossier-evaluation"
+    name = "Evaluation"
+
 
 
 class CourseInfoCompleteView(TemplateView):
