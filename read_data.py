@@ -3,7 +3,7 @@ import csv
 import json
 import re
 from collections import namedtuple
-from typing import Match, List
+from typing import Match, List, Optional
 
 import django
 import os
@@ -11,7 +11,7 @@ from pathlib import Path
 import logging
 
 # "Onderwijsvorm (studiegids) (NL)": "Hoor..."
-#c.literature = d["Literatuur (studiegids) (NL)"]
+# c.literature = d["Literatuur (studiegids) (NL)"]
 
 Field = namedtuple('Field', ["field", "source", "column"])
 
@@ -32,7 +32,6 @@ fields = [
 # 3. select kolommen -. toon alles
 # 4. wait a minute to allow columns to load (yes, really)
 # 5. click download -> csv
-import sys
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'dejavu.settings'
 
@@ -50,15 +49,22 @@ def path(fn):
     return p
 
 
-def get_programme(pcode: str) -> Programme:
+def get_programme(pcode: str) -> Optional[Programme]:
+    pcode = re.sub(r'(S_B)_\d', r'\1', pcode)
     if pcode.startswith('S_M_CW'):
         return Programme.objects.get(code="S_M_CW")
     if pcode.startswith('S_B keuze '):  # SS4S
-        return Programme.objects.get(code="S_B_2 CW")
+        return Programme.objects.get(code="S_B CW")
     try:
         return Programme.objects.get(code=pcode)
     except Programme.DoesNotExist:
         return
+
+
+def get_ba_year(pcode: str) -> Optional[int]:
+    m = re.match(r'S_B_(\d)', pcode)
+    if m:
+        return int(m.group(1))
 
 
 def rematch(pattern: str, string:str, *args, **kargs) -> Match:
@@ -125,6 +131,9 @@ for fn in args.uas_file:
             # Create the course
             print("Creating course ", code, year)
             c = Course(code=code, academic_year=year)
+            ba_year = get_ba_year(d['Code_MG'])
+            if ba_year:
+                c.ba_year = ba_year
 
             # skip courses with no period
             period = d['Aangeboden periodes'].replace("Periode ", "")

@@ -31,9 +31,17 @@ class Programme(models.Model):  # BA, P, M, ...
 class Qualification(models.Model):  # eindterm
     name = models.CharField(max_length=100)
     programme = models.ForeignKey(Programme, on_delete=models.CASCADE)
+    category = models.TextField()
+    nr = models.CharField(max_length=5)
+    label = models.TextField()
+    description = models.TextField()
 
     def __str__(self):
-        return f'{self.name}'
+        return f'[{self.nr}] {self.category}: {self.label}'
+
+    class Meta:
+        ordering = ['nr']
+        unique_together = ['programme', 'nr']
 
 
 class Course(models.Model):
@@ -44,8 +52,9 @@ class Course(models.Model):
     teachers = models.ManyToManyField(Teacher, through='CourseTeacher')
     outcomes = models.ManyToManyField(Qualification, through='LearningOutcome')
     programmes = models.ManyToManyField(Programme)
+    ba_year = models.IntegerField(null=True, blank=True)
     language = models.CharField(max_length=2)
-    canvas_course = models.IntegerField(null=True)
+    canvas_course = models.IntegerField(null=True, blank=True)
 
     level = models.IntegerField(null=True)
 
@@ -91,14 +100,17 @@ class CourseTeacher(models.Model):
 
 class TestType(models.Model):
     name = models.CharField(max_length=100)
+    abbreviation = models.CharField(max_length=10)
 
-
-class Test(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    type = models.ForeignKey(TestType, on_delete=models.PROTECT)
+    def __str__(self):
+        return f'{self.name}'
 
 
 class LearningOutcome(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     qualification = models.ForeignKey(Qualification, on_delete=models.PROTECT)
-    tested = models.ManyToManyField(Test)
+    description = models.TextField(null=False, blank=False)
+    tested = models.ManyToManyField(TestType)
+
+    class Meta:
+        ordering = ['qualification']

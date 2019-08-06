@@ -1,3 +1,4 @@
+import re
 from typing import Iterable
 
 from ckeditor.widgets import CKEditorWidget
@@ -6,7 +7,7 @@ from django.forms import CharField, modelformset_factory
 from django.urls import reverse
 from django.views.generic import FormView, TemplateView
 
-from dejaviewer.models import Course, CourseField, CourseInfo, LearningOutcome, Test
+from dejaviewer.models import Course, CourseField, CourseInfo, LearningOutcome, TestType, Qualification
 
 
 # Beschrijving (1.3)
@@ -25,23 +26,36 @@ from dejaviewer.models import Course, CourseField, CourseInfo, LearningOutcome, 
 # Herentamenanalyse + reactie
 
 
+class DossierPartView(FormView):
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.course = Course.objects.get(pk=kwargs['course'])
+        self.course = Course.objects.get(pk=kwargs['course'])
+        self.field = CourseField.objects.get(field=self.field)
+        self.sources = {ci.source: ci.content for ci in CourseInfo.objects.filter(course=self.course, field=self.field)}
+        self.value = self.sources.pop('dossier', '')
+
+    @classmethod
+    def is_complete(cls, course: Course) -> bool:
+        return False
+
+    def get_success_url(self):
+        return reverse(self.view_name, kwargs=dict(course=self.course.id))
+
+
 class DossierDescriptionForm(forms.Form):
     description = CharField(label='Coruse Description', widget=CKEditorWidget)
 
 
-class DossierDescriptionView(FormView):
+class DossierDescriptionView(DossierPartView):
     template_name = 'dossier_description.html'
     form_class = DossierDescriptionForm
     name = "Course Description"
     view_name = "dossier-description"
+    field = 'description'
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-        self.course = Course.objects.get(pk=kwargs['course'])
-        self.field = CourseField.objects.get(field='description')
-        self.sources = {ci.source: ci.content for ci in CourseInfo.objects.filter(course=self.course, field=self.field)}
-        self.value = self.sources.pop('dossier', '')
-        self.sources['Last year'] = '(sorry, no data yet!)'
 
     def get_initial(self):
         return {'description': self.value}
@@ -50,14 +64,13 @@ class DossierDescriptionView(FormView):
         c = super().get_context_data(**kwargs)
         c['course'] = self.course
         c['sources'] = self.sources
+        self.sources['Last year'] = '(sorry, no data yet!)'
         return c
 
     def form_valid(self, form):
         self.course.set_field('description', 'dossier', form.cleaned_data['description'])
         return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse(self.view_name, kwargs=dict(course=self.course.id))
 
     @classmethod
     def is_complete(cls, course: Course) -> bool:
@@ -69,38 +82,45 @@ class DossierDescriptionView(FormView):
             return False
 
 
-class DossierLearningGoalsView(FormView):
-    template_name = 'dossier_description.html'
+class DossierLearningGoalsView(DossierPartView):
+    template_name = 'dossier_learninggoals.html'
     view_name = "dossier-goals"
     name = "Learning Goals"
-    form_class = modelformset_factory(LearningOutcome, exclude=['course'])
+    field = 'goal'
+    form_class = modelformset_factory(LearningOutcome,
+                                      exclude=['course'],
+                                      can_delete=True,
+                                      extra=1)
 
-    def setup(self, request, *args, **kwargs):
-        super().setup(request, *args, **kwargs)
-        self.course = Course.objects.get(pk=kwargs['course'])
-        self.field = CourseField.objects.get(field='description')
-        self.sources = {ci.source: ci.content for ci in CourseInfo.objects.filter(course=self.course, field=self.field)}
-        self.value = self.sources.pop('dossier', '')
+    def get_context_data(self, **kwargs):
+        c = super().get_context_data(**kwargs)
+        c['testtypes'] = list(TestType.objects.all())
+        # monkey hack enters in UAS goals
+        for src, text in self.sources.items():
+            if 'UAS' in src:
+                text = re.sub(r"([-A-Z])", r"<br/>\1", text)
+                self.sources[src] = text
+        c['sources'] = self.sources
+        return c
 
+    def get_form_class(self):
+        # Filter qualifications of underlying form
+        f = super().get_form_class()
+        qualifications = Qualification.objects.filter(programme__in=self.course.programmes.all())
 
-class DossierTestView(FormView):
-    template_name = 'dossier_description.html'
-    view_name = "dossier-test"
-    name = "Tests and Assignments"
-    form_class = modelformset_factory(Test, exclude=['course'])
+        class LearningOutcomeForm(f.form):
+            def __init__(self, *args, **kargs):
+                super().__init__(*args, **kargs)
+                self.fields['qualification'].queryset = qualifications
+        f.form = LearningOutcomeForm
+        return f
 
-
-    def setup(self, request, *args, **kwargs):
-        super().setup(request, *args, **kwargs)
-        self.course = Course.objects.get(pk=kwargs['course'])
-        self.field = CourseField.objects.get(field='test')
-        self.sources = {ci.source: ci.content for ci in CourseInfo.objects.filter(course=self.course, field=self.field)}
-
-
-class DossierEvaluationView(FormView):
-    view_name = "dossier-evaluation"
-    name = "Evaluation"
-
+    def form_valid(self, form):
+        for goal in form.save(commit=False):
+            goal.course = self.course
+            goal.save()
+        form.save_m2m()
+        return super().form_valid(form)
 
 
 class CourseInfoCompleteView(TemplateView):
@@ -129,4 +149,6 @@ class CourseInfoIndexView(TemplateView):
         return c
 
 
-dossier_parts = [DossierDescriptionView]
+dossier_parts = [DossierDescriptionView,
+                 DossierLearningGoalsView,
+                 ]

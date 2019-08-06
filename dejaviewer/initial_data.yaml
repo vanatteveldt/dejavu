@@ -9,25 +9,41 @@
 - model: dejaviewer.Programme
   pk: 1
   fields:
-    code: 'S_B_1 CW'
-    name: 'Bachelor Communicatiewetenschap jaar 1'
+    code: 'S_B CW'
+    name: 'Bachelor Communicatiewetenschap'
 - model: dejaviewer.Programme
   pk: 2
-  fields:
-    code: 'S_B_2 CW'
-    name: 'Bachelor Communicatiewetenschap jaar 2'
-- model: dejaviewer.Programme
-  pk: 3
-  fields:
-    code: 'S_B_3 CW'
-    name: 'Bachelor Communicatiewetenschap jaar 3'
-- model: dejaviewer.Programme
-  pk: 4
   fields:
     code: 'S_P_CW'
     name: 'Premaster Communicatiewetenschap'
 - model: dejaviewer.Programme
-  pk: 5
+  pk: 3
   fields:
     code: 'S_M_CW'
     name: 'Master Communicatiewetenschap'
+- model: dejaviewer.TestType
+  pk: 1
+  fields:
+    name: 'Final exam (MC questions)'
+    abbreviation: 'mc'
+- model: dejaviewer.TestType
+  pk: 2
+  fields:
+    name: 'Final exam (Open questions)'
+    abbreviation: 'open'
+- model: dejaviewer.TestType
+  pk: 3
+  fields:
+    name: 'Assignments'
+    abbreviation: 'assn'
+- model: dejaviewer.TestType
+  pk: 4
+  fields:
+    name: 'Mid-term test'
+    abbreviation: 'mid-term'
+- model: dejaviewer.TestType
+  pk: 5
+  fields:
+    name: 'Presentation'
+    abbreviation: 'pres'
+

@@ -13,12 +13,14 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode, is_safe_url, urlencode
 from django.views import View
 from django.views.generic import TemplateView, RedirectView
+from django.utils.translation import gettext_lazy as _
 
 from django import forms
 
 
 class VULoginForm(AuthenticationForm):
     """Subclass for authentication that can handle login/reset link sending"""
+    password = forms.CharField(label=_("Password"), strip=False, widget=forms.PasswordInput, required=False)
 
     def clean(self):
         if 'action-link' in self.data:
@@ -27,7 +29,6 @@ class VULoginForm(AuthenticationForm):
             self.action = "RESET"
         else:
             self.action = "LOGIN"
-
         if self.action in ["LINK", "RESET"]:
             # don't need password, only check if username is filled in
             if not self.cleaned_data.get('username'):
@@ -39,7 +40,6 @@ class VULoginForm(AuthenticationForm):
             return self.cleaned_data
         else:
             # Normal login, so defer to super
-
             return super().clean()
 
 
@@ -61,6 +61,7 @@ def send_email(user: User, action: str, next_url: str = None):
     subject = ''.join(subject.splitlines())
     body = loader.render_to_string("registration/link_email_body.txt", context)
     email_message = EmailMultiAlternatives(subject, body, from_email, [to_email])
+    print(body)
     html_email = loader.render_to_string("registration/link_email_body.html", context)
     email_message.attach_alternative(html_email, 'text/html')
     email_message.send()
@@ -76,7 +77,6 @@ class VULoginView(LoginView):
         return c
 
     def form_valid(self, form):
-        print(form.action)
         if form.action in ["LINK", "RESET"]:
             return self.send_link(form.action, form.cleaned_data['username'])
         else:
@@ -86,7 +86,7 @@ class VULoginView(LoginView):
         response = TemplateResponse(self.request, template="registration/mail_sent.html",
                                     context=dict(username=username))
         try:
-            user = User.objects.get(username = username)
+            user = User.objects.get(username=username)
         except User.DoesNotExist:
             logging.warning(f"User {username} not found")
             return response
@@ -94,7 +94,7 @@ class VULoginView(LoginView):
             logging.warning(f"User {username} not active")
             return response
 
-        send_email(user, action, next_url = self.get_redirect_url())
+        send_email(user, action, next_url=self.get_redirect_url())
         return response
 
 
