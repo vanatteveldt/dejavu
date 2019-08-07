@@ -10,20 +10,20 @@ from django.views.generic import FormView, TemplateView
 from dejaviewer.models import Course, CourseField, CourseInfo, LearningOutcome, TestType, Qualification
 
 
-# Beschrijving (1.3)
-# Leerdoelen (2.2)
-# Toetsing (2.1)
+# Beschrijving (1.3) X
+# Leerdoelen (2.2)   X
+# Toetsing (2.1)     X
 
-# Studiehandleiding (1.2)
+# Studiehandleiding (1.2)   > canvas?
 
-# Toetsmatrijs (2.5 + 2.6)
-# Tentamen + antwoordmodel + peer review (2.7 + 2.8)
+# Toetsmatrijs (2.5 + 2.6)  > upload
+# Tentamen + antwoordmodel + peer review (2.7 + 2.8)  > upload / canvas
 
-# Evaluatievragen
-# Tentamenanalyse + reactie
-# Reactie op evaluatie (3.3)
+# Evaluatievragen  > christoffel (gemaild voor N2)
+# Tentamenanalyse + reactie  > upload + proza
+# Reactie op evaluatie (3.3)  > proza
 
-# Herentamenanalyse + reactie
+# Herentamenanalyse + reactie  > upload + proza
 
 
 class DossierPartView(FormView):
@@ -122,6 +122,9 @@ class DossierLearningGoalsView(DossierPartView):
         form.save_m2m()
         return super().form_valid(form)
 
+    @classmethod
+    def is_complete(cls, course: Course) -> bool:
+        return Qualification.objects.filter(course=course).exists()
 
 class CourseInfoCompleteView(TemplateView):
     template_name = 'dossier_full.html'
